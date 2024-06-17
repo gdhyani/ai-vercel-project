@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState ,useEffect } from "react";
 
+
 export default function Chat() {
     const messagesEndRef = useRef(null);
     const scrollToBottom = () => {

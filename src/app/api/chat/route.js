@@ -1,5 +1,5 @@
 import { mistral } from "@ai-sdk/mistral";
-import { generateText } from "ai";
+import { generateText, streamText } from "ai";
 import { NextResponse } from "next/server";
 
 // const { text } = await generateText({
@@ -17,15 +17,24 @@ export function GET() {
 }
 
 export async function POST(request) {
-    const req = await request.json();
-    const { text } = await generateText({
+    const { messages } = await request.json();
+    console.log(messages);
+
+    const result = await streamText({
         model: mistral("mistral-large-latest"),
-        prompt: req.text,
+        system: "You are a helpful assistant.",
+        messages,
     });
-    const data = {
-        data: "Data2",
-        test: text,
-        version: 1,
-    };
-    return NextResponse.json(data);
+
+    return result.toAIStreamResponse();
+    // const { text } = await generateText({
+    //     model: mistral("mistral-large-latest"),
+    //     messages,
+    // });
+    // const data = {
+    //     data: "Data2",
+    //     test: text,
+    //     version: 1,
+    // };
+    // return NextResponse.json(data);
 }
