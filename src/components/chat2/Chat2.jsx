@@ -1,55 +1,54 @@
+// app/chat/page.js
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useEffect, useState } from "react";
+import { mistral } from "@ai-sdk/mistral";
+import { useState } from "react";
 
-export default function Page() {
-    const [input1, setInput1] = useState("");
-    const [code, setcode] = useState(
-        "console.log(22+23=); console.log(23+23+23-23+23=)"
-    );
-    const { messages, input, setInput, handleInputChange, handleSubmit } =
-        useChat({
-            api: "api/chat",
-            sendExtraMessageFields: true,
+export default function Chat() {
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: "/api/chat",
+  });
+  const [code, setCode] = useState("");
+
+  const handleSubmitWithCode = (e) => {
+    e.preventDefault();
+    if (input.trim()) {
+      handleSubmit(e, {
+        options: {
+          body: {
             messages: [
-                { role: "user", content: input1 },
-                { role: "system", content: code },
+              ...messages,
+              {
+                role: "user",
+                content: `Message: ${input}, Code: ${code}`,
+              },
             ],
-        });
-    function handleCodeSubmit(e) {
-        handleSubmit(e);
+          },
+        },
+      });
     }
-    return (
-        <>
-            {messages.map((message) => (
-                <div key={message.id}>
-                    {message.role === "user" ? "User: " : "AI: "}
-                    {message.content}
-                </div>
-            ))}
-            <form
-                className="text-black"
-                onSubmit={(e) => {
-                    handleCodeSubmit(e);
-                }}
-            >
-                <input
-                    name="prompt"
-                    value={input1}
-                    onChange={handleInputChange}
-                    id="input"
-                />
-                <textarea
-                    rows={4}
-                    placeholder="Enter your code"
-                    value={code}
-                    onChange={(e) => {
-                        setcode(e.target.value);
-                    }}
-                />
-                <button type="submit">Submit</button>
-            </form>
-        </>
-    );
+  };
+
+  return (
+    <div>
+      {messages.map((m) => (
+        <div key={m.id}>{m.content}</div>
+      ))}
+
+      <form onSubmit={handleSubmitWithCode}>
+        <input
+          value={input}
+          onChange={handleInputChange}
+          placeholder="Type your message here..."
+        />
+        <textarea
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder="Enter your code here..."
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  );
 }
